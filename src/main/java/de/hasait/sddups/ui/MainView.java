@@ -8,6 +8,8 @@ import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.grid.GridSelectionModel;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.ItemClickEvent;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -16,8 +18,10 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.AuthenticationUtil;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import com.vaadin.flow.spring.security.AuthenticationContext;
 import de.hasait.sddups.Application;
 import de.hasait.sddups.service.FileDupListener;
 import de.hasait.sddups.service.FileDupService;
@@ -27,6 +31,7 @@ import de.hasait.util.dup.DupObject;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -76,12 +81,28 @@ public class MainView extends VerticalLayout {
     };
 
 
-    public MainView(FileDupService fileDupService) {
+    public MainView(FileDupService fileDupService, AuthenticationContext authContext) {
         this.fileDupService = fileDupService;
 
         setSizeFull();
 
-        add(new Text("Welcome to " + Application.TITLE));
+        HorizontalLayout topLayout = new HorizontalLayout();
+        topLayout.setWidthFull();
+
+        H1 titleText = new H1(Application.TITLE);
+        titleText.setWidthFull();
+        topLayout.add(titleText);
+
+        authContext.getAuthenticatedUser(UserDetails.class).ifPresent(user -> {
+            Span span = new Span(user.getUsername());
+            topLayout.add(span);
+            Button logout = new Button("Logout", click -> authContext.logout());
+            topLayout.add(logout);
+        });
+
+        add(topLayout);
+
+        boolean admin = AuthenticationUtil.getSecurityHolderRoleChecker().apply("ADMIN");
 
         startPathField = new TextArea();
         startPathField.setSizeFull();
@@ -98,12 +119,14 @@ public class MainView extends VerticalLayout {
 
         scanButton = new Button("Scan");
         scanButton.addClickListener(event -> doScan());
+        scanButton.setEnabled(admin);
 
         refreshButton = new Button("Refresh");
         refreshButton.addClickListener(event -> refreshDataProvider());
 
         clearButton = new Button("Clear");
         clearButton.addClickListener(event -> doClear());
+        clearButton.setEnabled(admin);
 
         scanState = new Text("");
 
@@ -117,6 +140,7 @@ public class MainView extends VerticalLayout {
         setFlexGrow(1, grid);
 
         deleteButton = new Button("Delete");
+        deleteButton.setEnabled(admin);
         deleteButton.addClickListener(event -> onDeleteClicked());
         add(deleteButton);
 
