@@ -80,7 +80,6 @@ public class MainView extends VerticalLayout {
 
     };
 
-
     public MainView(FileDupService fileDupService, AuthenticationContext authContext) {
         this.fileDupService = fileDupService;
 
