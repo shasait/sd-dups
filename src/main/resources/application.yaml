@@ -1,0 +1,76 @@
+#
+# Copyright (C) 2021 by Sebastian Hasait (sebastian at hasait dot de)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+spring:
+  profiles:
+    active: 'prod'
+
+server:
+  port: 8083
+
+---
+spring:
+  config:
+    activate:
+      on-profile: 'dev'
+
+logging:
+  level:
+    de.hasait: 'debug'
+
+vaadin:
+  servlet:
+    production-mode:     false
+    close-idle-sessions: true
+  whitelisted-packages:
+    - 'com.vaadin'
+    - 'org.vaadin'
+    - 'dev.hilla'
+    - 'de.hasait'
+
+---
+spring:
+  config:
+    activate:
+      on-profile: 'test'
+
+logging:
+  level:
+    de.hasait: 'debug'
+
+vaadin:
+  servlet:
+    production-mode:     true
+    close-idle-sessions: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: 'prod'
+  main:
+    banner-mode: 'off'
+  devtools:
+    add-properties: false
+
+logging:
+  level:
+    de.hasait: 'info'
+
+vaadin:
+  servlet:
+    production-mode:     true
+    close-idle-sessions: true
