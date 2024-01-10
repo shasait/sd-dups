@@ -29,3 +29,13 @@ Search and Destroy duplicate files.
 * Select one or multiple found entries
 * Click on `Delete` to delete them permanently
 * Click on `Clear` to restart from the beginning
+
+# Details
+
+* Files smaller than 16K are ignored
+* Duplicates are found by using an index tree with 3 levels
+    * File size is the first level
+    * SHA256 of first 4K is the second level
+    * SHA256 of the content is the third level
+    * Levels are lazily populated to improve performance
+* Hard links and same remotes via different mount points are incorrectly detected as duplicates.
