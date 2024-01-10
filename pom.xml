@@ -19,12 +19,12 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.2.1</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
     <groupId>de.hasait.sd-dups</groupId>
     <artifactId>sd-dups</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>sd-dups</name>
     <description>sd-dups - Search and Destroy duplicate files</description>
     <url>https://github.com/shasait/sd-dups</url>
