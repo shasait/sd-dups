@@ -1,0 +1,15 @@
+{
+  "users": [
+    {
+      "username": "view",
+      "password": "{noop}view",
+      "role": "VIEW"
+    },
+    {
+      "username": "admin",
+      "password": "{noop}admin",
+      "role": "ADMIN"
+    }
+  ]
+}
+s

@@ -2,6 +2,12 @@ package de.hasait.sddups.security;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import de.hasait.sddups.ui.LoginView;
+import elemental.json.Json;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,10 +19,16 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 @EnableWebSecurity
 @Configuration
 public class SecurityConfiguration
         extends VaadinWebSecurity {
+
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfiguration.class);
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -50,22 +62,38 @@ public class SecurityConfiguration
         super.configure(web);
     }
 
-    /**
-     * TODO Load users from JSON.
-     */
     @Bean
     public UserDetailsManager userDetailsService() {
-        UserDetails user =
-                User.withUsername("view")
-                        .password("{noop}view")
-                        .roles("VIEW")
-                        .build();
-        UserDetails admin =
-                User.withUsername("admin")
-                        .password("{noop}admin")
-                        .roles("ADMIN")
-                        .build();
-        return new InMemoryUserDetailsManager(user, admin);
+        InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager();
+
+        File usersJsonFile = new File("users.json");
+        if (!usersJsonFile.canRead()) {
+            throw new RuntimeException("Users configuration does not exist or cannot be read: " + usersJsonFile);
+        }
+
+        log.info("Reading users from {}...", usersJsonFile);
+        String usersJson;
+        try {
+            usersJson = FileUtils.readFileToString(usersJsonFile, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        JsonObject jsonRoot = Json.parse(usersJson);
+        JsonArray jsonUsers = jsonRoot.getArray("users");
+        for (int i = 0; i < jsonUsers.length(); i++) {
+            JsonObject jsonUser = jsonUsers.getObject(i);
+            String username = jsonUser.getString("username");
+            log.debug("Found user: {}", username);
+
+            UserDetails user =
+                    User.withUsername(username)
+                            .password(jsonUser.getString("password"))
+                            .roles(jsonUser.getString("role"))
+                            .build();
+            userDetailsManager.createUser(user);
+        }
+
+        return userDetailsManager;
     }
 
 }

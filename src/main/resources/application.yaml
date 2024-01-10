@@ -32,8 +32,8 @@ logging:
     de.hasait: 'debug'
 
 vaadin:
+  production-mode: false
   servlet:
-    production-mode:     false
     close-idle-sessions: true
   whitelisted-packages:
     - 'com.vaadin'
@@ -52,8 +52,8 @@ logging:
     de.hasait: 'debug'
 
 vaadin:
+  production-mode: true
   servlet:
-    production-mode:     true
     close-idle-sessions: true
 
 ---
@@ -71,6 +71,6 @@ logging:
     de.hasait: 'info'
 
 vaadin:
+  production-mode: true
   servlet:
-    production-mode:     true
     close-idle-sessions: true
